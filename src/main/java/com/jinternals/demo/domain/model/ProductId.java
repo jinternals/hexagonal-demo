@@ -6,4 +6,8 @@ public record ProductId(String value) {
             throw new IllegalArgumentException("ProductId cannot be empty");
         }
     }
+
+    public static ProductId of(String value) {
+        return new ProductId(value);
+    }
 }

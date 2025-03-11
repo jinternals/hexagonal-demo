@@ -1,8 +1,6 @@
 package com.jinternals.demo.domain.model;
 
 
-import com.jinternals.demo.domain.events.DomainEvent;
-import com.jinternals.demo.domain.events.OrderCreatedEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

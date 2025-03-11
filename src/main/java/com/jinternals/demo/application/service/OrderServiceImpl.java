@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -40,6 +41,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order cancelOrder(OrderId orderId) {
+        if(Objects.isNull(orderId)){
+            throw new IllegalArgumentException("OrderId is null");
+        }
         Order order = orderOutputPort.getOrderById(orderId);
         order.cancel();
         Order updateOrder = orderOutputPort.update(order);
