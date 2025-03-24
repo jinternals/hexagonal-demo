@@ -11,4 +11,6 @@ public class UUIDIdGenerator implements IdGenerator {
     public String generateId() {
         return UUID.randomUUID().toString();
     }
+
+
 }

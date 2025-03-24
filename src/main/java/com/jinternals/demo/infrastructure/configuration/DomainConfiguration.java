@@ -8,31 +8,17 @@ import com.jinternals.demo.domain.services.IdGenerator;
 import com.jinternals.demo.domain.services.OrderPricingService;
 import com.jinternals.demo.infrastructure.logger.Slf4jDomainLogger;
 import com.jinternals.demo.infrastructure.services.TransactionalOrderServiceImpl;
+import com.jinternals.demo.infrastructure.services.UUIDIdGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class OrderServiceConfiguration {
+public class DomainConfiguration {
 
     @Bean
-    public OrderPricingService orderPricingService() {
-        return new OrderPricingService();
-    }
-
-    @Primary
-    @Bean("transactionalOrderService")
-    public OrderService transactionalOrderService(OrderService orderService) {
-        return new TransactionalOrderServiceImpl(orderService);
-    }
-
-    @Bean("orderService")
-    public OrderService orderService(
-            OrderPricingService orderPricingService,
-            OrderOutputPort orderOutputPort,
-            DomainEventPublisher domainEventPublisher,
-            IdGenerator idGenerator) {
-        return new OrderServiceImpl(orderPricingService, orderOutputPort, domainEventPublisher, idGenerator, new Slf4jDomainLogger(OrderServiceImpl.class));
+    public IdGenerator idGenerator() {
+        return new UUIDIdGenerator();
     }
 
 
