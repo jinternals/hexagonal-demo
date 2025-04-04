@@ -4,7 +4,6 @@ import com.jinternals.demo.application.service.OrderService;
 import com.jinternals.demo.domain.model.LineItem;
 import com.jinternals.demo.domain.model.Order;
 import com.jinternals.demo.domain.model.OrderId;
-import com.jinternals.demo.infrastructure.cache.Memoize;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

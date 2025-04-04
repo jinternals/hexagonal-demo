@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 public class MemoizeAspect {
     private RequestCache requestCache;
 
-    @Pointcut("execution(* (@com.jinternals.demo.infrastructure.cache.Memoize *).*(..))")
+    @Pointcut("execution(* (@com.jinternals.demo.infrastructure.cache.Memorize *).*(..))")
     public void methodInMemoizeType() {}
 
-    @Pointcut("execution(@com.jinternals.demo.infrastructure.cache.Memoize * *.*(..))")
+    @Pointcut("execution(@com.jinternals.demo.infrastructure.cache.Memorize * *.*(..))")
     public void methodAnnotatedWithMemoize() {}
 
     @Around("methodAnnotatedWithMemoize() || methodInMemoizeType()")
