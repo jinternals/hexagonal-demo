@@ -13,6 +13,11 @@ public record Amount(BigDecimal value, Currency currency) {
             throw new IllegalArgumentException("Amount must be non-negative");
         }
     }
+
+    public static Amount of(BigDecimal ten, Currency currency) {
+        return new Amount(ten, currency);
+    }
+
     public Amount convertTo(Currency targetCurrency, BigDecimal exchangeRate) {
         Objects.requireNonNull(targetCurrency, "Target currency cannot be null");
         Objects.requireNonNull(exchangeRate, "Exchange rate cannot be null");

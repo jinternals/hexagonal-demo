@@ -11,4 +11,8 @@ public record Quantity(BigDecimal value, Unit unit) {
             throw new IllegalArgumentException("Unit cannot be null");
         }
     }
+
+    public static Quantity of(BigDecimal value, Unit unit) {
+        return new Quantity(value,unit);
+    }
 }

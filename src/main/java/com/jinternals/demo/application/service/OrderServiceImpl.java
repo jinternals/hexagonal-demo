@@ -3,6 +3,7 @@ package com.jinternals.demo.application.service;
 import com.jinternals.demo.application.port.out.DomainEventPublisher;
 import com.jinternals.demo.application.port.out.OrderOutputPort;
 import com.jinternals.demo.domain.events.DomainEvent;
+import com.jinternals.demo.domain.events.OrderCancelledEvent;
 import com.jinternals.demo.domain.events.OrderCreatedEvent;
 import com.jinternals.demo.domain.logger.DomainLogger;
 import com.jinternals.demo.domain.model.*;
@@ -47,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderOutputPort.getOrderById(orderId);
         order.cancel();
         Order updateOrder = orderOutputPort.update(order);
-        domainEventPublisher.publish(new OrderCreatedEvent(updateOrder.getOrderId()));
+        domainEventPublisher.publish(new OrderCancelledEvent(updateOrder.getOrderId()));
         return updateOrder;
     }
 }
