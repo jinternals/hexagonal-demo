@@ -5,38 +5,70 @@ services:
     ports:
       - "8091-8097:8091-8097"  # Couchbase Web UI and services
       - "11210:11210"          # Couchbase Data Service
+    volumes:
+      - ./data/couchbase:/opt/couchbase/var
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8091/pools" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  couchbase-setup:
+    image: couchbase/server:latest
+    container_name: couchbase-setup
+    entrypoint: /opt/couchbase/setup.sh
     environment:
       COUCHBASE_ADMINISTRATOR_USERNAME: admin
       COUCHBASE_ADMINISTRATOR_PASSWORD: password
+      COUCHBASE_BUCKET: orders
+      COUCHBASE_COLLECTION: data
+      COUCHBASE_BUCKET_USER: order_user
+      COUCHBASE_BUCKET_PASSWORD: password
     volumes:
-      - ./data/couchbase:/opt/couchbase/var
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
-    restart: always
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-    ports:
-      - "2181:2181"
+      - ./couchbase/setup-couchbase.sh:/opt/couchbase/setup.sh
+    depends_on:
+      couchbase:
+        condition: service_healthy
 
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     restart: always
-    depends_on:
-      - zookeeper
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "9092:9092"    # external (host)
+      - "29092:29092"  # internal (docker network)
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092"
+      # ---- KRaft (no ZooKeeper) ----
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+
+      # ---- Listeners ----
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT_INTERNAL"
+
+      # ---- Single-broker topic settings ----
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      # ---- Storage ----
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+    volumes:
+      - ./data/kafka-data:/var/lib/kafka/data
+
+    command: >
+      bash -lc '
+      if [ ! -f /var/lib/kafka/data/meta.properties ]; then
+        export KAFKA_CLUSTER_ID=$(/usr/bin/kafka-storage random-uuid);
+        echo "Formatting storage with CLUSTER_ID=${KAFKA_CLUSTER_ID}";
+      fi;
+      exec /etc/confluent/docker/run
+      '
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest

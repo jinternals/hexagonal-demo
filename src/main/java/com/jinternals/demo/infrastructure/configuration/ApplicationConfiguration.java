@@ -10,7 +10,6 @@ import com.jinternals.demo.infrastructure.adapter.out.persistence.OrderOutputPer
 import com.jinternals.demo.infrastructure.adapter.out.persistence.repositories.OrderRepository;
 import com.jinternals.demo.infrastructure.logger.Slf4jDomainLogger;
 import com.jinternals.demo.infrastructure.services.TransactionalOrderServiceImpl;
-import com.jinternals.demo.infrastructure.services.UUIDIdGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

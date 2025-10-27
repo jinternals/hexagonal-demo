@@ -2,7 +2,7 @@ spring:
   application:
     name: hexagonal-demo
   couchbase:
-    username: admin
+    username: order_user
     password: password
     connection-string: couchbase://localhost
   kafka:
